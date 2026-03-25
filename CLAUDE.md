@@ -8,27 +8,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Stack
 
-- **Language:** Java
-- **Framework:** Spring Boot
-- **Build tool:** Gradle
+- **Language:** Java 21
+- **Framework:** Spring Boot 3.2
+- **Build tool:** Gradle 8.7
+- **Database:** PostgreSQL 16 (via Docker Compose)
+- **Migrations:** Flyway
 - **Containerization:** Docker
 
 ## Architecture
 
-The codebase follows **Clean Architecture** and **Clean Code** standards:
+The codebase follows **Clean Architecture** and **Clean Code** standards. Layer boundaries are strict — dependencies always point inward:
 
-- Business logic and domain rules are isolated from frameworks and infrastructure concerns.
-- Dependencies point inward: outer layers (web, persistence, external services) depend on inner layers (use cases, domain), never the reverse.
-- Each layer communicates through well-defined interfaces/ports.
+```
+controller → application → domain
+infrastructure → application + domain
+```
+
+Package structure under `com.corruner.plan.api`:
+- `domain` — pure Java entities and enums, no framework dependencies
+- `application` — use case interfaces, service implementations, DTOs, repository ports
+- `infrastructure` — JPA entities, Spring Data repositories, repository adapters, Flyway migrations
+- `controller` — REST controllers, exception handlers
+
+Key convention: JPA `@Entity` annotations live only in `infrastructure`, never in `domain`. The `GoalRepository` port in `application` is implemented by `GoalRepositoryAdapter` in `infrastructure`.
 
 ## Commands
 
 ```bash
+# Start the database
+docker compose up -d
+
+# Run locally (requires the local profile for datasource config)
+./gradlew bootRun --args='--spring.profiles.active=local'
+
 # Build
 ./gradlew build
-
-# Run locally
-./gradlew bootRun
 
 # Run tests
 ./gradlew test
@@ -38,9 +52,6 @@ The codebase follows **Clean Architecture** and **Clean Code** standards:
 
 # Build Docker image
 docker build -t corruner-plan-api .
-
-# Run with Docker
-docker run -p 8080:8080 corruner-plan-api
 ```
 
 Swagger UI is available at `http://localhost:8080/swagger-ui.html` when the app is running.
