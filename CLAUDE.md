@@ -32,6 +32,16 @@ Package structure under `com.corruner.plan.api`:
 
 Key convention: JPA `@Entity` annotations live only in `infrastructure`, never in `domain`. The `GoalRepository` port in `application` is implemented by `GoalRepositoryAdapter` in `infrastructure`.
 
+## Testing Strategy
+
+There are three test suites, each with a distinct scope:
+
+- **Unit tests** — cover all scenarios for every class in isolation (services, mappers, domain logic). Mock all dependencies. No Spring context.
+- **Component tests** — Cucumber BDD tests using H2 embedded database. Cover the main scenarios (happy paths and key error cases) end-to-end through the full stack via MockMvc. Live under `src/test/java/.../component/` with feature files at `src/test/resources/features/`.
+- **Integration tests** — validate end-to-end happy paths against a real running environment (PostgreSQL). Confirm the system works as a whole.
+
+When adding a new feature, all three suites must be updated accordingly.
+
 ## Commands
 
 ```bash
@@ -52,6 +62,9 @@ docker compose up -d
 
 # Build Docker image
 docker build -t corruner-plan-api .
+
+# Run integration tests (requires docker compose up -d first)
+./gradlew integrationTest
 ```
 
 Swagger UI is available at `http://localhost:8080/swagger-ui.html` when the app is running.
