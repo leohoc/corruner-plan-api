@@ -4,12 +4,16 @@ import com.corruner.plan.api.application.goal.dto.GoalResponse;
 import com.corruner.plan.api.application.goal.port.GoalRepository;
 import com.corruner.plan.api.application.goal.usecase.GetGoalUseCase;
 import com.corruner.plan.api.controller.goal.exception.GoalNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 public class GetGoalService implements GetGoalUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(GetGoalService.class);
 
     private final GoalRepository goalRepository;
 
@@ -19,8 +23,12 @@ public class GetGoalService implements GetGoalUseCase {
 
     @Override
     public GoalResponse execute(UUID id) {
+        log.debug("Fetching goal: id={}", id);
         return goalRepository.findById(id)
                 .map(GoalResponse::from)
-                .orElseThrow(() -> new GoalNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("Goal not found: id={}", id);
+                    return new GoalNotFoundException(id);
+                });
     }
 }
