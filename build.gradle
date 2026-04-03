@@ -42,6 +42,7 @@ test {
 tasks.register('integrationTest', Test) {
     useJUnitPlatform {
         includeTags 'integration'
+        excludeEngines 'junit-platform-suite'
     }
     shouldRunAfter test
 }
