@@ -1,4 +1,4 @@
-# corruner-plan-api
+# corunner-plan-api
 
 REST API for the **Plans** module of the **CoRunner** application.
 
@@ -72,5 +72,5 @@ The project has three test suites:
 ./gradlew build
 
 # Build Docker image
-docker build -t corruner-plan-api .
+docker build -t corunner-plan-api .
 ```

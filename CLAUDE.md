@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`corruner-plan-api` is the REST API for the **Plans** module of the **CoRunner** application. Built with Java, Spring Boot, Gradle, and Docker.
+`corunner-plan-api` is the REST API for the **Plans** module of the **CoRunner** application. Built with Java, Spring Boot, Gradle, and Docker.
 
 ## Stack
 
@@ -24,7 +24,7 @@ controller → application → domain
 infrastructure → application + domain
 ```
 
-Package structure under `com.corruner.plan.api`:
+Package structure under `com.corunner.plan.api`:
 - `domain` — pure Java entities and enums, no framework dependencies
 - `application` — use case interfaces, service implementations, DTOs, repository ports
 - `infrastructure` — JPA entities, Spring Data repositories, repository adapters, Flyway migrations
@@ -58,10 +58,10 @@ docker compose up -d
 ./gradlew test
 
 # Run a single test class
-./gradlew test --tests "com.corruner.plan.api.SomeTest"
+./gradlew test --tests "com.corunner.plan.api.SomeTest"
 
 # Build Docker image
-docker build -t corruner-plan-api .
+docker build -t corunner-plan-api .
 
 # Run integration tests (requires docker compose up -d first)
 ./gradlew integrationTest

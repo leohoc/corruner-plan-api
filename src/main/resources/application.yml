@@ -1,6 +1,6 @@
 spring:
   application:
-    name: corruner-plan-api
+    name: corunner-plan-api
   jpa:
     hibernate:
       ddl-auto: validate

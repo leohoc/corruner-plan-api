@@ -1,20 +1,20 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: corruner-postgres
+    container_name: corunner-postgres
     environment:
-      POSTGRES_DB: corruner_plan
-      POSTGRES_USER: corruner
-      POSTGRES_PASSWORD: corruner_secret
+      POSTGRES_DB: corunner_plan
+      POSTGRES_USER: corunner
+      POSTGRES_PASSWORD: corunner_secret
     ports:
       - "5432:5432"
     volumes:
-      - corruner_postgres_data:/var/lib/postgresql/data
+      - corunner_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U corruner -d corruner_plan"]
+      test: ["CMD-SHELL", "pg_isready -U corunner -d corunner_plan"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
-  corruner_postgres_data:
+  corunner_postgres_data:
