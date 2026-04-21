@@ -78,9 +78,20 @@ public class GoalStepDefinitions {
 
     @When("I send a POST request to {string} with body:")
     public void iSendAPostRequestWithBody(String url, String body) throws Exception {
+        String resolvedBody = savedGoalId != null
+                ? body.replace("{savedGoalId}", savedGoalId.toString())
+                : body;
         lastResult = mockMvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(body));
+                .content(resolvedBody));
+    }
+
+    public UUID getSavedGoalId() {
+        return savedGoalId;
+    }
+
+    public ResultActions getLastResult() {
+        return lastResult;
     }
 
     @When("I send a GET request to {string}")

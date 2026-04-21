@@ -22,16 +22,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("integration")
 @Tag("integration")
-class GoalIntegrationTest {
+class PlanIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private GoalJpaRepository goalJpaRepository;
+    private PlanJpaRepository planJpaRepository;
 
     @Autowired
-    private PlanJpaRepository planJpaRepository;
+    private GoalJpaRepository goalJpaRepository;
 
     @BeforeEach
     void cleanUp() {
@@ -40,8 +40,8 @@ class GoalIntegrationTest {
     }
 
     @Test
-    void createGoal_happyPath() throws Exception {
-        mockMvc.perform(post("/api/v1/goals")
+    void createPlan_thenGetByGoal_happyPath() throws Exception {
+        MvcResult goalResult = mockMvc.perform(post("/api/v1/goals")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -53,39 +53,54 @@ class GoalIntegrationTest {
                                 }
                                 """))
                 .andExpect(status().isCreated())
+                .andReturn();
+
+        String goalId = goalResult.getResponse().getContentAsString()
+                .replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(post("/api/v1/plans")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("""
+                                {
+                                  "goalId": "%s",
+                                  "name": "16-Week Marathon Plan",
+                                  "description": "Build up to 42km"
+                                }
+                                """, goalId)))
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.goalType").value("DISTANCE"))
-                .andExpect(jsonPath("$.targetDate").value("2026-12-31"))
-                .andExpect(jsonPath("$.weeklyWorkouts").value(3))
-                .andExpect(jsonPath("$.description").value("Marathon training"))
+                .andExpect(jsonPath("$.goalId").value(goalId))
+                .andExpect(jsonPath("$.name").value("16-Week Marathon Plan"))
+                .andExpect(jsonPath("$.description").value("Build up to 42km"))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());
+
+        mockMvc.perform(get("/api/v1/goals/" + goalId + "/plans"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("16-Week Marathon Plan"))
+                .andExpect(jsonPath("$[0].goalId").value(goalId));
     }
 
     @Test
-    void createGoal_thenGetById_happyPath() throws Exception {
-        MvcResult createResult = mockMvc.perform(post("/api/v1/goals")
+    void getPlansByGoal_returnsEmptyList_whenNoPlansExist() throws Exception {
+        MvcResult goalResult = mockMvc.perform(post("/api/v1/goals")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                   "goalType": "TIME",
                                   "goalNumber": 180.0,
                                   "targetDate": "2026-06-30",
-                                  "weeklyWorkouts": 4,
-                                  "description": "Half marathon"
+                                  "weeklyWorkouts": 4
                                 }
                                 """))
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        String responseBody = createResult.getResponse().getContentAsString();
-        String id = responseBody.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+        String goalId = goalResult.getResponse().getContentAsString()
+                .replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
 
-        mockMvc.perform(get("/api/v1/goals/" + id))
+        mockMvc.perform(get("/api/v1/goals/" + goalId + "/plans"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.goalType").value("TIME"))
-                .andExpect(jsonPath("$.targetDate").value("2026-06-30"))
-                .andExpect(jsonPath("$.weeklyWorkouts").value(4))
-                .andExpect(jsonPath("$.description").value("Half marathon"));
+                .andExpect(jsonPath("$.length()").value(0));
     }
 }
