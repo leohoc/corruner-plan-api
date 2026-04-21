@@ -98,3 +98,22 @@ resource "aws_iam_role_policy" "ecs_deploy" {
     }]
   })
 }
+
+resource "aws_iam_role_policy" "rds_manage" {
+  name = "rds-manage"
+  role = aws_iam_role.github_actions.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid    = "RdsStartStop"
+      Effect = "Allow"
+      Action = [
+        "rds:StartDBInstance",
+        "rds:StopDBInstance",
+        "rds:DescribeDBInstances"
+      ]
+      Resource = "*"
+    }]
+  })
+}

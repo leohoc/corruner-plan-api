@@ -8,3 +8,9 @@ build/
 .idea/
 *.iml
 .DS_Store
+
+# Terraform — downloaded providers and local state must not be committed
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
